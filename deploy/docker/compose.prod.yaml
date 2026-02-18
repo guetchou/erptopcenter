@@ -1,0 +1,91 @@
+version: "3.9"
+
+services:
+  backend:
+    image: ghcr.io/topcenter/topcenter-erpnext:${VERSION:-v1.0.0}
+    restart: unless-stopped
+    environment:
+      FRAPPE_SITE_NAME: ${FRAPPE_SITE_NAME:-erp.topcenter.cg}
+      DB_HOST: db
+      REDIS_QUEUE: redis-queue:6379
+      REDIS_CACHE: redis-cache:6379
+      SOCKETIO_PORT: 9000
+    depends_on:
+      - db
+      - redis-queue
+      - redis-cache
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/api/method/ping || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  frontend:
+    image: ghcr.io/topcenter/topcenter-erpnext:${VERSION:-v1.0.0}
+    command: nginx-entrypoint.sh
+    restart: unless-stopped
+    ports:
+      - "8082:8080"
+    depends_on:
+      - backend
+
+  websocket:
+    image: ghcr.io/topcenter/topcenter-erpnext:${VERSION:-v1.0.0}
+    command: node /home/frappe/frappe-bench/apps/frappe/socketio.js
+    restart: unless-stopped
+    environment:
+      FRAPPE_SITE_NAME: ${FRAPPE_SITE_NAME:-erp.topcenter.cg}
+    depends_on:
+      - backend
+
+  scheduler:
+    image: ghcr.io/topcenter/topcenter-erpnext:${VERSION:-v1.0.0}
+    command: bash -c "cd /home/frappe/frappe-bench && bench schedule"
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+  queue-short:
+    image: ghcr.io/topcenter/topcenter-erpnext:${VERSION:-v1.0.0}
+    command: bash -c "cd /home/frappe/frappe-bench && bench worker short"
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+  queue-long:
+    image: ghcr.io/topcenter/topcenter-erpnext:${VERSION:-v1.0.0}
+    command: bash -c "cd /home/frappe/frappe-bench && bench worker long"
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+  db:
+    image: mariadb:11.8
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - db-data:/var/lib/mysql
+
+  redis-cache:
+    image: redis:6.2-alpine
+    restart: unless-stopped
+    volumes:
+      - redis-cache-data:/data
+
+  redis-queue:
+    image: redis:6.2-alpine
+    restart: unless-stopped
+    volumes:
+      - redis-queue-data:/data
+
+volumes:
+  sites:
+  logs:
+  db-data:
+  redis-cache-data:
+  redis-queue-data:
+
