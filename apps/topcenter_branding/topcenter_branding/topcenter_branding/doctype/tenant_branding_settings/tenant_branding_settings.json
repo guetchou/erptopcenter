@@ -1,0 +1,61 @@
+{
+  "doctype": "DocType",
+  "name": "Tenant Branding Settings",
+  "module": "Topcenter Branding",
+  "custom": 1,
+  "istable": 0,
+  "editable_grid": 0,
+  "track_changes": 1,
+  "allow_import": 0,
+  "field_order": [
+    "company",
+    "logo",
+    "primary_color",
+    "secondary_color",
+    "footer_text",
+    "letter_head_template",
+    "print_signature"
+  ],
+  "fields": [
+    {
+      "fieldname": "company",
+      "fieldtype": "Link",
+      "label": "Company",
+      "options": "Company",
+      "reqd": 1
+    },
+    {
+      "fieldname": "logo",
+      "fieldtype": "Attach Image",
+      "label": "Logo"
+    },
+    {
+      "fieldname": "primary_color",
+      "fieldtype": "Color",
+      "label": "Primary Color"
+    },
+    {
+      "fieldname": "secondary_color",
+      "fieldtype": "Color",
+      "label": "Secondary Color"
+    },
+    {
+      "fieldname": "footer_text",
+      "fieldtype": "Small Text",
+      "label": "Footer Text"
+    },
+    {
+      "fieldname": "letter_head_template",
+      "fieldtype": "Text Editor",
+      "label": "Letter Head Template",
+      "description": "HTML/Jinja pour le letter head (en-tête imprimé)."
+    },
+    {
+      "fieldname": "print_signature",
+      "fieldtype": "Text Editor",
+      "label": "Print Signature Block",
+      "description": "Bloc signature commun (ex. directeur général)."
+    }
+  ]
+}
+
