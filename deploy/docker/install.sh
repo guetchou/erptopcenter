@@ -4,7 +4,7 @@ set -euo pipefail
 # Usage:
 #   COMPOSE_FILES='-f compose.prod.yaml -f compose.override.test.yaml' \
 #   VERSION=test ADMIN_PASSWORD='StrongPass!' \
-#   ./install.sh --site qa.local --modules core,branding --demo no
+#   ./install.sh --site qa.local --modules core,crm,cleaning,hr,finance --demo no
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
@@ -84,8 +84,17 @@ if echo '$MODULES' | grep -qE 'core|branding'; then
   bench --site '$SITE' list-apps | grep -q topcenter_branding || bench --site '$SITE' install-app topcenter_branding
 fi
 
+if echo '$MODULES' | grep -qw 'crm'; then
+  if [ -d apps/crm ]; then
+    bench --site '$SITE' list-apps | grep -q crm || bench --site '$SITE' install-app crm
+  else
+    echo \"ERREUR: module 'crm' absent de l image\"
+    exit 1
+  fi
+fi
+
 for mod in hr finance transport cleaning callcenter; do
-  if echo '$MODULES' | grep -q \"\$mod\"; then
+  if echo '$MODULES' | grep -qw \"\$mod\"; then
     app=topcenter_\$mod
     if [ -d \"apps/\$app\" ]; then
       bench --site '$SITE' list-apps | grep -q \"\$app\" || bench --site '$SITE' install-app \"\$app\"

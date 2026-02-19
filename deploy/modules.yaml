@@ -1,33 +1,47 @@
 core:
-  description: "Noyau ERPNext/HRMS + customisations TopCenter"
+  description: 'Socle obligatoire ERPNext + customisations TopCenter'
   apps:
     - erpnext
     - hrms
     - topcenter_core
     - topcenter_branding
 
+crm:
+  description: 'CRM Frappe/ERPNext pour prospection, pipeline, suivi client et marketing'
+  apps:
+    - crm
+
+cleaning:
+  description: 'Operations nettoyage: commandes, RDV, interventions, suivi client'
+  apps:
+    - topcenter_cleaning
+
 hr:
-  description: "Extensions RH spécifiques TopCenter (refactor de congo_hrms)"
+  description: 'Ressources humaines: agents, planning, presences, paie'
   apps:
     - topcenter_hr
 
 finance:
-  description: "Extensions Finance / Trésorerie (optionnel)"
+  description: 'Finance: facturation, encaissements, tresorerie'
   apps:
     - topcenter_finance
 
 transport:
-  description: "Module Transport (optionnel)"
+  description: 'Module Transport (optionnel)'
   apps:
     - topcenter_transport
 
-cleaning:
-  description: "Module Cleaning (optionnel)"
-  apps:
-    - topcenter_cleaning
-
 callcenter:
-  description: "Module Call Center (optionnel)"
+  description: 'Module Call Center (optionnel)'
   apps:
     - topcenter_callcenter
 
+profiles:
+  lvaclean:
+    description: 'Pack metier LVAClean: CRM + Cleaning + RH + Finance'
+    modules:
+      - core
+      - crm
+      - cleaning
+      - hr
+      - finance
