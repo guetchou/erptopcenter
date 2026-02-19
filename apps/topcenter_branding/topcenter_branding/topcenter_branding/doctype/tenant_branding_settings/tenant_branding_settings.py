@@ -20,7 +20,7 @@ class TenantBrandingSettings(Document):
             company.flags.ignore_permissions = True
             company.save()
             frappe.logger("topcenter_branding").info(
-                f"Company '{self.company}' mis à jour (logo)."
+                f"Company '{self.company}' mis ? jour (logo)."
             )
 
         # 2) Letter Head
@@ -28,17 +28,25 @@ class TenantBrandingSettings(Document):
         if frappe.db.exists("Letter Head", lh_name):
             lh = frappe.get_doc("Letter Head", lh_name)
         else:
-            lh = frappe.get_doc({
-                "doctype": "Letter Head",
-                "letter_head_name": lh_name,
-                "is_default": 1,
-                "disabled": 0,
-            })
+            lh = frappe.get_doc(
+                {
+                    "doctype": "Letter Head",
+                    "letter_head_name": lh_name,
+                    "is_default": 1,
+                    "disabled": 0,
+                }
+            )
         if self.letter_head_template:
             lh.content = self.letter_head_template
         lh.flags.ignore_permissions = True
         lh.save()
         frappe.logger("topcenter_branding").info(
-            f"Letter Head '{lh_name}' appliqué pour '{self.company}'."
+            f"Letter Head '{lh_name}' appliqu? pour '{self.company}'."
         )
 
+    @frappe.whitelist()
+    def apply_branding(self):
+        """M?thode appelable depuis un bouton UI `Apply` (idempotent)."""
+        self.apply()
+        frappe.db.commit()
+        return {"ok": True, "message": "Branding appliqu?"}

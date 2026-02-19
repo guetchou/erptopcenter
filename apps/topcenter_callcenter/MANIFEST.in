@@ -1,0 +1,5 @@
+include README.md
+recursive-include topcenter_callcenter *.json
+recursive-include topcenter_callcenter *.py
+recursive-include topcenter_callcenter *.md
+recursive-include topcenter_callcenter *.html

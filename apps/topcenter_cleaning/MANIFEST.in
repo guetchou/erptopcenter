@@ -1,0 +1,5 @@
+include README.md
+recursive-include topcenter_cleaning *.json
+recursive-include topcenter_cleaning *.py
+recursive-include topcenter_cleaning *.md
+recursive-include topcenter_cleaning *.html

@@ -42,5 +42,46 @@ jobs:
       - name: Smoke test image
         run: |
           docker run --rm ghcr.io/topcenter/topcenter-erpnext:${{ github.ref_name }} \
-            bash -lc "cd /home/frappe/frappe-bench && bench --version && bench --help >/dev/null"
+            bash -lc "cd /home/frappe/frappe-bench && bench --version && test -d apps/topcenter_core && test -d apps/topcenter_branding"
 
+      - name: Generate SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          image: ghcr.io/topcenter/topcenter-erpnext:${{ github.ref_name }}
+          format: spdx-json
+          output-file: sbom.spdx.json
+
+      - name: Vulnerability scan (non bloquant)
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ghcr.io/topcenter/topcenter-erpnext:${{ github.ref_name }}
+          format: table
+          exit-code: '0'
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Prepare release artifacts
+        run: |
+          mkdir -p release-artifacts
+          cp deploy/docker/compose.prod.yaml release-artifacts/
+          cp deploy/docker/compose.dev.yaml release-artifacts/
+          cp deploy/docker/install.sh release-artifacts/
+          cp deploy/docker/upgrade.sh release-artifacts/
+          cp deploy/docker/rollback.sh release-artifacts/
+          cp deploy/docker/healthcheck.sh release-artifacts/
+          cp deploy/docker/.env.example release-artifacts/
+          cp deploy/modules.yaml release-artifacts/
+          cp docs/ARCHITECTURE.md release-artifacts/
+          cp docs/OPERATIONS.md release-artifacts/
+          cp docs/RELEASE.md release-artifacts/
+          cp docs/ROLLBACK.md release-artifacts/
+          cp docs/SECURITY.md release-artifacts/
+          cp docs/CUSTOMIZATIONS.md release-artifacts/
+          cp docs/RQC.md release-artifacts/
+          cp sbom.spdx.json release-artifacts/
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: topcenter-release-${{ github.ref_name }}
+          path: release-artifacts

@@ -1,0 +1,12 @@
+# Local env / artifacts
+.env
+*.env
+artifacts/
+
+# Python
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
+Thumbs.db

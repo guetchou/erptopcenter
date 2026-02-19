@@ -1,5 +1,5 @@
-version: "3.9"
 
+# Dev : build local, volume apps pour itération sans rebuild. Utilise .env (MYSQL_ROOT_PASSWORD, etc.)
 services:
   backend:
     build:
@@ -8,10 +8,14 @@ services:
     image: topcenter-erpnext-dev:latest
     restart: unless-stopped
     environment:
-      FRAPPE_SITE_NAME: erp.topcenter.local
+      FRAPPE_SITE_NAME: ${FRAPPE_SITE_NAME:-erp.topcenter.local}
       DB_HOST: db
       REDIS_QUEUE: redis-queue:6379
       REDIS_CACHE: redis-cache:6379
+    depends_on:
+      - db
+      - redis-cache
+      - redis-queue
     volumes:
       - ../../apps:/home/frappe/frappe-bench/apps
       - sites:/home/frappe/frappe-bench/sites
@@ -19,7 +23,30 @@ services:
     ports:
       - "8000:8000"
 
+  db:
+    image: mariadb:11.8
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-admin}
+    volumes:
+      - db-data:/var/lib/mysql
+
+  redis-cache:
+    image: redis:6.2-alpine
+    restart: unless-stopped
+    volumes:
+      - redis-cache-data:/data
+
+  redis-queue:
+    image: redis:6.2-alpine
+    restart: unless-stopped
+    volumes:
+      - redis-queue-data:/data
+
 volumes:
   sites:
   logs:
+  db-data:
+  redis-cache-data:
+  redis-queue-data:
 

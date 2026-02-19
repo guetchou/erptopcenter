@@ -1,0 +1,5 @@
+include README.md
+recursive-include topcenter_transport *.json
+recursive-include topcenter_transport *.py
+recursive-include topcenter_transport *.md
+recursive-include topcenter_transport *.html

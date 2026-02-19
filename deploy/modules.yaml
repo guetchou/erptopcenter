@@ -1,0 +1,33 @@
+core:
+  description: "Noyau ERPNext/HRMS + customisations TopCenter"
+  apps:
+    - erpnext
+    - hrms
+    - topcenter_core
+    - topcenter_branding
+
+hr:
+  description: "Extensions RH spécifiques TopCenter (refactor de congo_hrms)"
+  apps:
+    - topcenter_hr
+
+finance:
+  description: "Extensions Finance / Trésorerie (optionnel)"
+  apps:
+    - topcenter_finance
+
+transport:
+  description: "Module Transport (optionnel)"
+  apps:
+    - topcenter_transport
+
+cleaning:
+  description: "Module Cleaning (optionnel)"
+  apps:
+    - topcenter_cleaning
+
+callcenter:
+  description: "Module Call Center (optionnel)"
+  apps:
+    - topcenter_callcenter
+
