@@ -1,42 +1,56 @@
-# RQC – CHECKLIST QUALITÉ RUN / CHANGE
+# RQC ? CHECKLIST QUALIT? RUN / CHANGE
 
-## 1. Avant déploiement
+## 0. Pr?-requis
 
-- [ ] Tag Git créé (format `vX.Y.Z`) et poussé.
-- [ ] `docs/RELEASE.md` mis à jour avec le tag.
-- [ ] Pipeline GitHub Actions `Release` passé au vert.
-- [ ] Image disponible sur GHCR (`docker pull ghcr.io/topcenter/topcenter-erpnext:<tag>` OK).
+- [ ] Contexte h?te: Docker + Docker Compose install?s
+- [ ] Contexte conteneur: backend accessible (`docker compose exec backend ...`)
 
-## 2. Déploiement / Upgrade
+## 1. Avant d?ploiement
 
-- [ ] Fichier `.env` renseigné (DB, secrets, FRAPPE_SITE_NAME).
-- [ ] `deploy/docker/compose.prod.yaml` validé dans le contexte client (ports, DNS).
-- [ ] `deploy/docker/upgrade.sh <tag>` exécuté sans erreur.
-- [ ] `bench migrate` succès pour tous les sites (logs vérifiés).
-- [ ] Healthcheck HTTP OK (`/api/method/ping` sur chaque site).
+- [ ] Tag Git cr?? au format `vX.Y.Z`
+- [ ] `docs/RELEASE.md` mis ? jour
+- [ ] Pipeline GitHub Actions `Release` vert
+- [ ] Image disponible: `docker pull ghcr.io/topcenter/topcenter-erpnext:<tag>`
 
-## 3. Customisations
+## 2. D?ploiement / Upgrade (h?te)
 
-- [ ] `bench --site <site> list-apps` montre `topcenter_core` (et modules requis).
-- [ ] Export JSON + rapport des customisations conservés en artefacts.
-- [ ] Patches `topcenter_core.patches` exécutés sans erreur (aucun nouvel échec dans Error Log).
+- [ ] `.env` renseign? (`MYSQL_ROOT_PASSWORD`, `FRAPPE_SITE_NAME`, `VERSION`)
+- [ ] Installation initiale valid?e:
+  - `ADMIN_PASSWORD='***' ./deploy/docker/install.sh --site <site> --modules core,hr --demo no`
+- [ ] Upgrade valid?:
+  - `./deploy/docker/upgrade.sh <tag>`
+- [ ] Healthcheck OK:
+  - `./deploy/docker/healthcheck.sh http://localhost:8082/api/method/ping`
 
-## 4. Branding
+## 3. Migration multi-sites (conteneur backend)
 
-- [ ] DocType `Tenant Branding Settings` existe.
-- [ ] Hook `topcenter_branding.branding.apply_branding_for_current_site` exécuté (log OK).
-- [ ] Les Print Formats (Demande de congé, Salaire-TopCenter, …) utilisent bien le logo + footer du tenant.
+- [ ] Pour chaque site (avec `site_config.json`), `bench --site <site> migrate` est pass?
+- [ ] `bench --site <site> list-apps` contient `topcenter_core` (et modules requis)
 
-## 5. Sécurité / Anti-patterns
+## 4. Customisations
 
-- [ ] Aucun `pip install` dans les scripts de démarrage des conteneurs.
-- [ ] Aucun volume `apps` en prod.
-- [ ] Aucun bind-mount de scripts dans `sites/` (tous les scripts sont packagés en app).
-- [ ] Settings sensibles injectés via secrets/env, pas dans Git.
+- [ ] Export customisations ex?cut? (contexte backend):
+  - `exec(open('/tmp/export_customizations.py').read()); run()`
+- [ ] Artefacts pr?sents:
+  - `/home/frappe/frappe-bench/artifacts/customizations_*.json`
+  - `/home/frappe/frappe-bench/artifacts/customizations_report_*.md`
+- [ ] Fixtures versionn?es dans `apps/topcenter_core/topcenter_core/fixtures/`
 
-## 6. Rollback
+## 5. Branding
 
-- [ ] Tag précédent disponible sur GHCR.
-- [ ] `rollback.sh` testé en environnement de pré-prod.
-- [ ] Retour à l’image précédente OK, sans corruption de données.
+- [ ] DocType `Tenant Branding Settings` existe
+- [ ] Hook branding ex?cut? apr?s migrate
+- [ ] Print Formats consomment `branding.*` (logo/couleurs/footer/signature)
 
+## 6. S?curit? / Anti-patterns
+
+- [ ] Aucun `pip install` dans les commandes de d?marrage prod
+- [ ] Aucun volume `apps` en prod
+- [ ] Aucun bind-mount patch/prod depuis h?te
+- [ ] Aucun script setup copi? dans `sites/` en prod
+
+## 7. Rollback
+
+- [ ] Tag pr?c?dent disponible
+- [ ] `./deploy/docker/rollback.sh <tag_precedent>` test? en pr?-prod
+- [ ] Notes migrations irr?versibles document?es dans `docs/ROLLBACK.md`

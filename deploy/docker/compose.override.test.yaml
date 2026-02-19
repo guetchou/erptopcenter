@@ -1,0 +1,18 @@
+# Override pour test local : image buildée + port 8083 si 8082 occupé
+# Usage: docker compose -f compose.prod.yaml -f compose.override.test.yaml up -d
+
+services:
+  backend:
+    image: topcenter-erpnext:test
+  frontend:
+    image: topcenter-erpnext:test
+    ports:
+      - "8083:8080"
+  websocket:
+    image: topcenter-erpnext:test
+  scheduler:
+    image: topcenter-erpnext:test
+  queue-short:
+    image: topcenter-erpnext:test
+  queue-long:
+    image: topcenter-erpnext:test

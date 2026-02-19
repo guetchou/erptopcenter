@@ -1,0 +1,5 @@
+include README.md
+recursive-include topcenter_hr *.json
+recursive-include topcenter_hr *.py
+recursive-include topcenter_hr *.md
+recursive-include topcenter_hr *.html

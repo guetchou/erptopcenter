@@ -1,0 +1,4 @@
+include README.md
+recursive-include topcenter_core *.json
+recursive-include topcenter_core *.py
+recursive-include topcenter_core *.md

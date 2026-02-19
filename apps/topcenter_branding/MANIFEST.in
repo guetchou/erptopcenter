@@ -1,0 +1,5 @@
+include README.md
+recursive-include topcenter_branding *.json
+recursive-include topcenter_branding *.py
+recursive-include topcenter_branding *.md
+recursive-include topcenter_branding *.html

@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   backend:
     image: ghcr.io/topcenter/topcenter-erpnext:${VERSION:-v1.0.0}
@@ -7,6 +5,7 @@ services:
     environment:
       FRAPPE_SITE_NAME: ${FRAPPE_SITE_NAME:-erp.topcenter.cg}
       DB_HOST: db
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       REDIS_QUEUE: redis-queue:6379
       REDIS_CACHE: redis-cache:6379
       SOCKETIO_PORT: 9000
@@ -31,6 +30,14 @@ services:
       - "8082:8080"
     depends_on:
       - backend
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites:ro
+      - logs:/home/frappe/frappe-bench/logs
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/api/method/ping || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   websocket:
     image: ghcr.io/topcenter/topcenter-erpnext:${VERSION:-v1.0.0}
@@ -40,6 +47,9 @@ services:
       FRAPPE_SITE_NAME: ${FRAPPE_SITE_NAME:-erp.topcenter.cg}
     depends_on:
       - backend
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
 
   scheduler:
     image: ghcr.io/topcenter/topcenter-erpnext:${VERSION:-v1.0.0}
@@ -47,6 +57,9 @@ services:
     restart: unless-stopped
     depends_on:
       - backend
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
 
   queue-short:
     image: ghcr.io/topcenter/topcenter-erpnext:${VERSION:-v1.0.0}
@@ -54,6 +67,9 @@ services:
     restart: unless-stopped
     depends_on:
       - backend
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
 
   queue-long:
     image: ghcr.io/topcenter/topcenter-erpnext:${VERSION:-v1.0.0}
@@ -61,6 +77,9 @@ services:
     restart: unless-stopped
     depends_on:
       - backend
+    volumes:
+      - sites:/home/frappe/frappe-bench/sites
+      - logs:/home/frappe/frappe-bench/logs
 
   db:
     image: mariadb:11.8
@@ -88,4 +107,3 @@ volumes:
   db-data:
   redis-cache-data:
   redis-queue-data:
-

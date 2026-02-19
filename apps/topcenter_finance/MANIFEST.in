@@ -1,0 +1,5 @@
+include README.md
+recursive-include topcenter_finance *.json
+recursive-include topcenter_finance *.py
+recursive-include topcenter_finance *.md
+recursive-include topcenter_finance *.html

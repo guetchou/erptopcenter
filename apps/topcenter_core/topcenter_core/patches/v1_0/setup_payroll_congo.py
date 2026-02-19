@@ -8,23 +8,34 @@ def log(msg: str) -> None:
 
 
 def ensure_salary_component(code: str, label: str, type_: str):
-    if frappe.db.exists("Salary Component", code):
-        log(f"Salary Component '{code}' déjà présent, skip.")
+    # Payroll/HRMS absent: skip s?r
+    if not frappe.db.exists("DocType", "Salary Component"):
+        log("DocType Salary Component absent, skip salary components.")
         return
 
-    log(f"Création du Salary Component '{code}' ({type_})...")
-    sc = frappe.get_doc({
-        "doctype": "Salary Component",
-        "salary_component": code,
-        "description": label,
-        "type": type_,
-        "abbr": code[:8],
-    })
+    if frappe.db.exists("Salary Component", code):
+        log(f"Salary Component '{code}' d?j? pr?sent, skip.")
+        return
+
+    log(f"Cr?ation du Salary Component '{code}' ({type_})...")
+    sc = frappe.get_doc(
+        {
+            "doctype": "Salary Component",
+            "salary_component": code,
+            "description": label,
+            "type": type_,
+            "abbr": code[:8],
+        }
+    )
     sc.insert(ignore_permissions=True)
-    log(f"Salary Component '{code}' créé.")
+    log(f"Salary Component '{code}' cr??.")
 
 
 def ensure_payroll_settings():
+    if not frappe.db.exists("DocType", "Payroll Settings"):
+        log("DocType Payroll Settings absent, skip payroll settings.")
+        return
+
     ps = frappe.get_single("Payroll Settings")
     changed = False
 
@@ -40,17 +51,16 @@ def ensure_payroll_settings():
         ps.flags.ignore_permissions = True
         ps.save()
         frappe.db.commit()
-        log("Payroll Settings mis à jour (round_to_the_nearest_integer=1, no timesheet).")
+        log("Payroll Settings mis ? jour (round_to_the_nearest_integer=1, no timesheet).")
     else:
-        log("Payroll Settings déjà configurés, skip.")
+        log("Payroll Settings d?j? configur?s, skip.")
 
 
 def apply():
     """Patch idempotent : configuration paie Congo."""
     log("Patch v1_0.setup_payroll_congo: START")
     ensure_salary_component("BASE", "Salaire de base", "Earning")
-    ensure_salary_component("CNSS_EMP", "CNSS Employé", "Deduction")
+    ensure_salary_component("CNSS_EMP", "CNSS Employ?", "Deduction")
     ensure_salary_component("CNSS_EMPLOYER", "CNSS Employeur", "Earning")
     ensure_payroll_settings()
     log("Patch v1_0.setup_payroll_congo: DONE")
-

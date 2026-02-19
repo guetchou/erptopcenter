@@ -1,5 +1,9 @@
 # Environment Variables
 .env
+*.env
+
+# Local artifacts
+artifacts/
 
 # mounted volume
 sites
@@ -10,21 +14,21 @@ development/*
 !development/apps-example.json
 !development/vscode-example/
 
-# Pycharm
+# IDE
 .idea
-
-# VS Code
 .vscode/**
 !.vscode/extensions.json
-
-# VS Code devcontainer
 .devcontainer
 *.code-workspace
 
 # Python
 *.pyc
-__pycache__
+__pycache__/
 venv
 
 # NodeJS
 node_modules
+
+# OS
+.DS_Store
+Thumbs.db
